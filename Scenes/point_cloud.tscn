@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cosdsj4pbp1ku"]
+
+[ext_resource type="Shader" uid="uid://bkcsynvq07a3m" path="res://Shader/pointcloud.gdshader" id="1_tnwqe"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_64xuc"]
+render_priority = 0
+shader = ExtResource("1_tnwqe")
+shader_parameter/point_size = 16.0
+
+[node name="PointCloud" type="MeshInstance3D"]
+material_override = SubResource("ShaderMaterial_64xuc")
