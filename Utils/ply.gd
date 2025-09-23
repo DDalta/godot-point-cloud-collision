@@ -57,8 +57,8 @@ static func generate_mesh(pointcloud: PlyFile):
 	st.commit(mesh)
 	return mesh
 
-static func print_pointcloud(pointcloud: PlyFile):
-	print(pointcloud.vertices)
+static func print_properties(pointcloud: PlyFile):
+	print(pointcloud.properties)
 
 
 		#for j in range(len(pointcloud.properties["vertex"])):
