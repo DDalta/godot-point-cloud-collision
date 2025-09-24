@@ -1,9 +1,46 @@
-[gd_scene load_steps=3 format=3 uid="uid://cho88xrf6pn3t"]
+[gd_scene load_steps=7 format=3 uid="uid://cho88xrf6pn3t"]
 
 [ext_resource type="Script" uid="uid://boggm46we3pp1" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://bd5fturpc5igl" path="res://Scenes/Camera/free_camera.tscn" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://8cfm6sbxogox" path="res://Assets/Textures/sky_t.png" id="3_h2yge"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_1bvp3"]
+panorama = ExtResource("3_h2yge")
+
+[sub_resource type="Sky" id="Sky_lquwl"]
+sky_material = SubResource("PanoramaSkyMaterial_1bvp3")
+
+[sub_resource type="Environment" id="Environment_7mycd"]
+background_mode = 2
+sky = SubResource("Sky_lquwl")
+tonemap_mode = 2
+glow_enabled = true
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ig7tw")
 
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.350207, 0.936672, 0, -0.936672, -0.350207, -0.110432, 0.538476, -5.86796)
+light_color = Color(0.898039, 0.807843, 0, 1)
+light_energy = 7.014
+spot_range = 1.84711
+spot_angle = 29.4408
+
+[node name="SpotLight3D3" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.350207, 0.936672, 0, -0.936672, -0.350207, -0.110432, 0.538476, -3.26269)
+light_color = Color(0, 0.949575, 0.545598, 1)
+light_energy = 7.014
+spot_range = 1.84711
+spot_angle = 29.4408
+
+[node name="SpotLight3D2" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.350207, 0.936672, 0, -0.936672, -0.350207, -0.287731, 0.538476, -8.51033)
+light_color = Color(1, 0.384314, 0.564706, 1)
+light_energy = 7.014
+spot_range = 1.84711
+spot_angle = 19.5469
+
 [node name="FreeCamera" parent="." instance=ExtResource("2_0xm2m")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_7mycd")
