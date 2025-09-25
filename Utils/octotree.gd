@@ -2,7 +2,7 @@ class_name OctoTree extends Resource
 
 var _bottom_left_front: Vector3
 var _top_right_back: Vector3
-var _size: float
+var _size: Vector3
 var _max_items: int
 var _children_nodes: Array = []
 var _point_data: Dictionary # empty nodes will store the data (if empty, we are in leaf node)
@@ -13,7 +13,9 @@ func _init(bottom_left_front: Vector3, top_right_back: Vector3, max_items: int =
 	self._top_right_back = top_right_back
 	self._max_items = max_items
 	
-	self._aabb = AABB(self._bottom_left_front, self._top_right_back - self._bottom_left_front)
+	self._size = self._top_right_back - self._bottom_left_front
+	
+	self._aabb = AABB(self._bottom_left_front, self._size)
 
 func insert(point: Vector3, data) -> bool:
 	
@@ -42,21 +44,26 @@ func insert(point: Vector3, data) -> bool:
 		if self._point_data.size() > self._max_items:
 			# overfill; divde all data into new leaf nodes
 			
+			var new_bottom_left_front := self._bottom_left_front
+			var new_top_right_back := self._top_right_back
+			
 			for i in range(8):
 				if i&4: # right
-					pass
+					new_bottom_left_front.x += self._size.x / 2
 				else:
-					pass
+					new_top_right_back.x -= self._size.x / 2
 
 				if i&2: # top
-					pass
+					new_bottom_left_front.y += self._size.y / 2
 				else:
-					pass
+					new_top_right_back.y -= self._size.y / 2
 
 				if i&1: # front
-					pass
+					new_top_right_back.z += self._size.z / 2
 				else:
-					pass
+					new_bottom_left_front.z -= self._size.z / 2
+				
+				self._children_nodes.append(OctoTree.new(new_bottom_left_front, new_top_right_back, self._max_items))
 		
 	return true
 func search(point: Vector3):
