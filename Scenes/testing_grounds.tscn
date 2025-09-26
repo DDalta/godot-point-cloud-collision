@@ -1,6 +1,22 @@
-[gd_scene load_steps=2 format=3 uid="uid://dt0pd0gmlva8r"]
+[gd_scene load_steps=6 format=3 uid="uid://dt0pd0gmlva8r"]
 
 [ext_resource type="Script" uid="uid://dnnd6iv5wcs5x" path="res://Scenes/testing_grounds.gd" id="1_gnny0"]
+[ext_resource type="Texture2D" uid="uid://8cfm6sbxogox" path="res://Assets/Textures/sky_t.png" id="2_dcuqf"]
 
-[node name="TestingGrounds" type="Node2D"]
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_abtgi"]
+panorama = ExtResource("2_dcuqf")
+
+[sub_resource type="Sky" id="Sky_lquwl"]
+sky_material = SubResource("PanoramaSkyMaterial_abtgi")
+
+[sub_resource type="Environment" id="Environment_w34uy"]
+background_mode = 2
+sky = SubResource("Sky_lquwl")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="TestingGrounds" type="Node3D"]
 script = ExtResource("1_gnny0")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_w34uy")
