@@ -15,14 +15,18 @@ func _init(bottom_left_front: Vector3, top_right_back: Vector3, max_items: int =
 	self._max_items = max_items
 	
 	self._size = self._top_right_back - self._bottom_left_front
+	
+	#print(self._bottom_left_front, self._top_right_back, self._size, self._max_items)
+	
 	self._center = (self._bottom_left_front + self._top_right_back) * 0.5
 	
 	self._aabb = AABB(self._bottom_left_front, self._size)
 
 func insert(point: Vector3, data) -> bool:
-	
+	#print("Inserting %v" % point)
 	# check if valid position inside node
 	if not self._aabb.has_point(point):
+		print("%v does not fit inside %v by %v" % [point, self._aabb.position, self._aabb.position+self._aabb.size])
 		return false
 	
 	# check if current node  has any children
@@ -44,27 +48,27 @@ func insert(point: Vector3, data) -> bool:
 		self._point_data[point] = data
 		
 		if self._point_data.size() > self._max_items:
-			# overfill; divde all data into new leaf nodes
+			# overfill; divide all data into new leaf nodes
 			
-			var new_bottom_left_front := self._bottom_left_front
-			var new_top_right_back := self._top_right_back
-			
-			# create children
+			# create children (## https://github.com/daniel-mcclintock/Octree.gd)
 			for i in range(8):
-				if i&4: # right
-					new_bottom_left_front.x += self._size.x * 0.5
-				else:
+				var new_bottom_left_front := self._bottom_left_front
+				var new_top_right_back := self._top_right_back
+				
+				if i&4: # front
 					new_top_right_back.x -= self._size.x * 0.5
+				else:
+					new_bottom_left_front.x += self._size.x * 0.5
 
 				if i&2: # top
 					new_bottom_left_front.y += self._size.y * 0.5
 				else:
 					new_top_right_back.y -= self._size.y * 0.5
 
-				if i&1: # front
-					new_top_right_back.z += self._size.z * 0.5
+				if i&1: # right
+					new_bottom_left_front.z += self._size.z * 0.5
 				else:
-					new_bottom_left_front.z -= self._size.z * 0.5
+					new_top_right_back.z -= self._size.z * 0.5
 				
 				self._children_nodes.append(OctoTree.new(new_bottom_left_front, new_top_right_back, self._max_items))
 				
@@ -93,13 +97,13 @@ func search(point: Vector3):
 static func _get_octant_index(point: Vector3, center: Vector3) -> int:
 	var oct = 0
 
-	if point.x >= center.x:
+	if point.x <= center.x: # front
 		oct |= 4
 
-	if point.y >= center.y:
+	if point.y >= center.y: # top
 		oct |= 2
 
-	if point.z >= center.z:
+	if point.z >= center.z: # right
 		oct |= 1
 
 	return oct

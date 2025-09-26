@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://dt0pd0gmlva8r"]
+[gd_scene load_steps=8 format=3 uid="uid://dt0pd0gmlva8r"]
 
 [ext_resource type="Script" uid="uid://dnnd6iv5wcs5x" path="res://Scenes/testing_grounds.gd" id="1_gnny0"]
 [ext_resource type="Texture2D" uid="uid://8cfm6sbxogox" path="res://Assets/Textures/sky_t.png" id="2_dcuqf"]
+[ext_resource type="PackedScene" uid="uid://bd5fturpc5igl" path="res://Scenes/Camera/free_camera.tscn" id="3_abtgi"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_abtgi"]
 panorama = ExtResource("2_dcuqf")
@@ -15,8 +16,22 @@ sky = SubResource("Sky_lquwl")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_abtgi"]
+albedo_color = Color(0.321569, 1, 1, 1)
+
 [node name="TestingGrounds" type="Node3D"]
 script = ExtResource("1_gnny0")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_w34uy")
+
+[node name="FreeCamera" parent="." instance=ExtResource("3_abtgi")]
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+radius = 0.2
+material = SubResource("StandardMaterial3D_abtgi")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 5)
+visible = false
+size = Vector3(10, 10, 10)

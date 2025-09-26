@@ -14,3 +14,7 @@ config/name="Point Cloud Collision"
 run/main_scene="uid://cho88xrf6pn3t"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[debug_draw_3d]
+
+settings/addon_root_folder="res://addons/debug_draw_3d"
