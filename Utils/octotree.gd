@@ -13,17 +13,12 @@ func _init(bottom_left_front: Vector3, top_right_back: Vector3, max_items: int =
 	self._bottom_left_front = bottom_left_front
 	self._top_right_back = top_right_back
 	self._max_items = max_items
-	
 	self._size = self._top_right_back - self._bottom_left_front
-	
-	#print(self._bottom_left_front, self._top_right_back, self._size, self._max_items)
-	
 	self._center = (self._bottom_left_front + self._top_right_back) * 0.5
-	
 	self._aabb = AABB(self._bottom_left_front, self._size)
 
+## Insert point into the tree
 func insert(point: Vector3, data) -> bool:
-	#print("Inserting %v" % point)
 	# check if valid position inside node
 	if not self._aabb.has_point(point):
 		print("%v does not fit inside %v by %v" % [point, self._aabb.position, self._aabb.position+self._aabb.size])
@@ -81,6 +76,7 @@ func insert(point: Vector3, data) -> bool:
 	
 	return true
 
+## Search tree for given point
 func search(point: Vector3):
 	if self._point_data.has(point):
 		return self._point_data[point]
@@ -90,6 +86,28 @@ func search(point: Vector3):
 		return node.search(point)
 	
 	return null
+
+## Clear all data from tree
+func clear() -> void:
+	if not self._children_nodes.is_empty():
+		for node in self._children_nodes:
+			node.clear()
+		self._children_nodes.clear()
+	else:
+		self._point_data.clear()
+
+## Get all octnodes that collide with a given aabb
+func check_aabb(aabb: AABB):
+	if self._aabb.intersects(aabb):
+		if self._children_nodes.is_empty():
+			return [self]
+		else:
+			var nodes = [self]
+			for child in self._children_nodes:
+				var col = child.check_aabb(aabb)
+				if col: nodes.append_array(col)
+			return nodes
+	return []
 
 ## Compute the index of this OctreeNode's _octant_nodes Array that would store the given position.
 ## the computed index aligns with the _octant_nodes Array order.
