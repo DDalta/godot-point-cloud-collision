@@ -14,7 +14,7 @@ var head: OctoTree
 var collision_nodes: Array
 
 func _ready() -> void:
-	head = OctoTree.new(Vector3(0, 0, 0), Vector3(10, 10, 10), 100)
+	head = OctoTree.new(Vector3(0, 0, 0), Vector3(10, 10, 10), 5)
 	generate_points()
 
 func _process(delta: float) -> void:
@@ -41,7 +41,8 @@ func generate_points():
 	point_cloud_mesh.mesh = mesh
 
 func draw_octotree(node: OctoTree, color: Color, expand: float = 1.0) -> void:
-	DebugDraw3D.draw_box(node._bottom_left_front, Quaternion.IDENTITY, node._size * expand, color)
+	#DebugDraw3D.draw_box(node._bottom_left_front, Quaternion.IDENTITY, node._size * expand, color)
+	DebugDraw3D.draw_aabb(node._aabb, color)
 	for i in node._children_nodes:
 		if i in collision_nodes: draw_octotree(i, Color.GREEN, 1.01)
 		else: draw_octotree(i, Color.BLUE)
