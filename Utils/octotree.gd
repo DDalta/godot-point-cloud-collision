@@ -43,7 +43,7 @@ func insert(point: Vector3, data) -> bool:
 		self._point_data[point] = data
 		
 		if self._point_data.size() > self._max_items:
-			# overfill; divide all data into new leaf nodes
+			# overflowing; segment all data into new octleaf nodes
 			
 			# create children (## https://github.com/daniel-mcclintock/Octree.gd)
 			for i in range(8):

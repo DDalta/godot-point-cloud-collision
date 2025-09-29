@@ -6,6 +6,7 @@ const POINT_CLOUD = preload("res://Scenes/point_cloud.tscn")
 @onready var point_cloud_mesh: MeshInstance3D = $PointCloud2
 @onready var csg_box_3d: CSGBox3D = $CSGBox3D
 
+@export var max_size: Vector3 = Vector3(10, 10, 10)
 @export var enable_draw_octotree: bool = false
 @export var point_count: int = 50
 @export_tool_button("Regenerate Points") var gen_points_action = generate_points
