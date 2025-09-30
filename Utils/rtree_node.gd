@@ -1,15 +1,15 @@
-class_name RTree extends Resource
+class_name RTreeNode extends Resource
 
 var _max_items: int
 var _children_nodes: Array = []
 var _aabb: AABB
 var _point_data: Dictionary
 
-func _init(point_data = {}, max_items = 100):
+func _init(point_data = {}, aabb = null, max_items = 32):
 	self._point_data = point_data
 	self._max_items = max_items
-	
-
+	if aabb: self._aabb = aabb
+	#else: self._aabb = AABB(Vector3.ZERO, Vector3.ZERO)
 
 ## Tree is travered recursively from the root node.
 ## At each step, all children are examined and a candidate is chosen using a heutrisitc
@@ -19,15 +19,26 @@ func _init(point_data = {}, max_items = 100):
 func insert(point: Vector3, data):
 	if not self._children_nodes.is_empty():
 		# choose which subnode is best to insert and recurse
-		var node = _choose_least_area_enlargement(self._children_nodes, point)
-		return node.insert(point)
+		var node: RTreeNode = _choose_least_area_enlargement(self._children_nodes, point)
+		var result: Array = node.insert(point, data)
+		# check if the node was split (empty array = no new nodes were made aka no split)
+		if not result.is_empty():
+			self._children_nodes.append_array(result)
+			self._children_nodes.erase(node)
 	else:
 		# leaf node
 		self._point_data[point] = data
-		self._aabb = AABB(self._aabb.expand(point))
+		
+		# expand current aabb if it already exists, or create a new one if not
+		if self._aabb: self._aabb = AABB(self._aabb.expand(point))
+		else: self._aabb = AABB(point, Vector3.ZERO)
+		
 		if self._point_data.size() > self._max_items:
 			# overflowing, split node
-			var split_node = self.quadratic_split()
+			return self.quadratic_split()
+		return []
+		
+		
 
 ## "Searches for the pair of rectangles that is the worst combination to have in the same node,
 ## and puts them as initial objects into the two new groups. It then searches for the entry
@@ -45,30 +56,31 @@ func quadratic_split():
 	self._point_data.erase(worse_combination[1])
 	
 	for point in self._point_data:
-		var group1_enlargement = group1_aabb.expand(point)
-		var group2_enlargement = group2_aabb.expand(point)
+		var group1_enlarged = group1_aabb.expand(point)
+		var group2_enlarged = group2_aabb.expand(point)
 		
-		var group1_enlargement_volume = group1_enlargement.get_volume()
-		var group2_enlargement_volume = group2_enlargement.get_volume()
+		var group1_enlargement_diff = group1_enlarged.get_volume() - group1_aabb.get_volume()
+		var group2_enlargement_diff = group2_enlarged.get_volume() - group2_aabb.get_volume()
 		
-		if group1_enlargement_volume == group2_enlargement_volume:
+		if group1_enlargement_diff == group2_enlargement_diff:
 			# if both enlargements are equal, choose the group with the smallest volume
 			if group1_aabb.get_volume() < group2_aabb.get_volume():
 				group1[point] = self._point_data.get(point)
-				group1_aabb = group1_enlargement
+				group1_aabb = group1_enlarged
 			else:
 				group2[point] = self._point_data.get(point)
-				group2_aabb = group2_enlargement
+				group2_aabb = group2_enlarged
 		else:
 			# choose the group that will have the smallest enlargement
-			if group1_enlargement_volume < group2_enlargement_volume:
+			if group1_enlargement_diff < group2_enlargement_diff:
 				group1[point] = self._point_data.get(point)
-				group1_aabb = group1_enlargement
+				group1_aabb = group1_enlarged
 			else:
 				group2[point] = self._point_data.get(point)
-				group2_aabb = group2_enlargement
-
+				group2_aabb = group2_enlarged
+	
 	self._point_data.clear()
+	return [RTreeNode.new(group1, group1_aabb, self._max_items), RTreeNode.new(group2, group2_aabb, self._max_items)]
 
 func clear():
 	pass
