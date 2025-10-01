@@ -28,18 +28,19 @@ albedo_color = Color(0.321569, 1, 1, 1)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_xwgi5"]
 _surfaces = [{
-"aabb": AABB(0.294784, 0.110608, 0.212064, 9.69814, 9.86705, 9.74381),
+"aabb": AABB(0.0691468, 0.266683, 0.0941493, 9.73035, 9.63709, 9.53444),
 "attribute_data": PackedByteArray("/wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP8="),
 "format": 34359738377,
 "primitive": 0,
 "uv_scale": Vector4(0, 0, 0, 0),
 "vertex_count": 50,
-"vertex_data": PackedByteArray("9LgNQNDPtUA3tBU/F/fuQHiO2EAVNIhAHhzFQJoNVUBvvPtAQxmNQCWZj0CGD1lAFmr+QGlADEEJ9gVBG64GQCEeEUBRiRtAtd8IQd9rMD4/piNAyZCIQBjc1EAKO2g+6u2WPhb76UDfbOpA4MRjQJJWD0C5LX9AjXhTQADZFUEmO8JAHSDoQDdxxUCeqyBArgVPQC12GEGTcfE+ei0iQBu3BUHTFaNAVW3rP/GevD4D7jdABeCNQLqqtEBnNhtBaGHsQNrYZj+HaZM/xZaqP3aM9UBPjwNB4gmYP+7tnECLxTBABeMfQSGyPEC9A/s/Q4q4QF+aJUA0Yrw/a9geQBVf0D8uqWdApGwWQTeG4j2rw0pAxewBQWo2AUGuSAtBhroFQWYAGEEY6b9A141eQMIWPT8DhjJAT5DSP+h7skDhHk1AmFuDQIDB+j+PQ6pAFwJ0QNBcAEHQsX0/OJLqQPFPQUCjzsA/2+zhQIopVUAeBBxAMqwSQYGkH0GTHfk/+7kWQS0gFkHw7ic/LRERQPSLdkADhotAMDtRQB14BkAmp59Aomb+QD8WB0BFSx9BW/A2P7znckAvJwBBtXO6QNOGHUC9nQJBIocOQPnCAUEq2uJAfdUMQUYw7UBgYwxBevEAQWRFm0BdnV5AE2iZQGnfiUBGWe5ARdLTP7B/nD9wef5Aw+3NP32sFUGSpL1Ai+9KQCHqAECBl69AhUR6QFcBFUGBMVdA33sUQT3cH0AeoH1AzCLMP/RhTkAwJ1k+2h8NQfMu6kCKb8dAlyAdQIIQ0kDDdso+")
+"vertex_data": PackedByteArray("vsocQTU0qD+3jIJAVvb8QJcIz0DW08ZA4xhbPwHdyj4zPwlBfDqDQOy9gUDYoAhBPJ2AQAjSo0BmnQhABwiFQJDyDEHd30lAEDm6QK3OAUFzgJlAIa4TQD1eF0H6t9ZAcbwAQQn4p0CikzJA+k4CQbJQiT/wDAVAwv2OQAGQ+EB8qydA8fYWQWfzNUD8fuZANJQbQPS7Sj/03ug/hZLyPZsEY0D8zMo/E7iwQIpX2z9PXl5A0I7kPl/Jj0Czc1NAPfwBQfzf5EAjErNAng3IQHGoC0Gsi7NA4eASQe3eFUHcWt0/gmruQI78hEC/LxJB6dT+QODRYEDFMoVAYAXZQBrU0D9c0cA9H5HhQNf0G0H9yPBA1nsOQX1HjUAfyShA+OLaQN2W8UA1GKA/Gr33QOVo60Aoia9AikkNQaihcEAZpWtApH2DQKPZzEBjYRFBlo3dQB1tZ0Avh8E/laEGQacsXD9EKgdBnDmhPrmKiD46e7BAZJS/QCT3M0B+/JZAu/kJQT/xgT92mKRAPjYLQKTe+kCxDhpBd8YOQZlmBUHyu9BAKPb1QGU81j8RfIJAlvn+P8nVoj++kRRBTcjjQBx/n0APpQtBBG8AQXpz4kD3z4xAsHkIQU8hOkCzrNc/kCdAP+MLskCmjspAJhmKP8U1C0GRi2g/W8T6QJryNkCe2gdAvSrLP4vz8kD2/oc/2ZyNPdd1HkGMHbtA2d2jQKmNGUH3oQ9BM7ocQflHZj+kdrk/UhssQNpX70D73slArHdiQF56kj/IdfVAP7c4QMDKj0DO264/")
 }]
 
 [node name="TestingGrounds" type="Node3D"]
 script = ExtResource("1_gnny0")
 enable_draw_octotree = true
+point_count = 50
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_w34uy")
@@ -55,4 +56,4 @@ mesh = SubResource("ArrayMesh_xwgi5")
 metadata/_edit_lock_ = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.54959, 4.56428, 11.8649)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.23029, 4.56428, 11.6445)

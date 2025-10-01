@@ -38,10 +38,10 @@ func _quadratic_split():
 	
 	self._update_data(worse_combination[0], temp_data.get(worse_combination[0]))
 	new_node._update_data(worse_combination[1], temp_data.get(worse_combination[1]))
-	
+
 	temp_data.erase(worse_combination[0])
 	temp_data.erase(worse_combination[1])
-	
+
 	for point in temp_data:
 		var node_enlarged = self.get_aabb().expand(point)
 		var new_node_enlarged = new_node.get_aabb().expand(point)
@@ -131,7 +131,7 @@ func _update_aabb() -> void:
 		new_aabb = new_aabb.merge(child._aabb)
 	self._aabb = new_aabb
 
-func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
+static func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 	# if we are at root and there is a newnode, update the root
 	if node._parent == null:
 		if new_node != null:
@@ -144,7 +144,7 @@ func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 			node._aabb = node_copy._aabb.merge(new_node._aabb)
 			node_copy._parent = node
 			new_node._parent = node
-			return
+		return
 	var parent: RTreeNode = node._parent
 	if new_node:
 		parent._children_nodes.append(new_node)
@@ -159,7 +159,7 @@ func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 	else:
 		_adjust_tree(parent, null)
 	
-static func _get_worse_combination(points: Array[Vector3]):
+static func _get_worse_combination(points: Array):
 	var worse_combination = [Vector3.ZERO, Vector3.ZERO]
 	var worse_distance: float = -1
 	for i in range(points.size()):
@@ -170,7 +170,7 @@ static func _get_worse_combination(points: Array[Vector3]):
 				worse_distance = distance
 	return worse_combination
 
-static func _get_worse_node_combination(nodes: Array[RTreeNode]):
+static func _get_worse_node_combination(nodes: Array):
 	var worse_combination = [Vector3.ZERO, Vector3.ZERO]
 	var worse_wasted_volume: float = -1
 	for i in range(nodes.size()):
@@ -186,10 +186,23 @@ static func _get_worse_node_combination(nodes: Array[RTreeNode]):
 ## POSSIBLE TODO: handle the case when the difference between volumes is equal
 ## Choose the node that enlarges the least when inserting a point
 static func _choose_least_area_enlargement(nodes: Array, point: Vector3):
-	var min_idx: int = INF
+	var min_idx: int = 0
+	var min_vol_diff: float = INF
 	for i in range(nodes.size()):
 		var volume: float = nodes[i].get_aabb().get_volume()
 		var enlarged_aabb: AABB = nodes[i].get_aabb().expand(point)
-		if enlarged_aabb.get_volume() - volume < min_idx:
+		if enlarged_aabb.get_volume() - volume < min_vol_diff:
 			min_idx = i
+			min_vol_diff = enlarged_aabb.get_volume() - volume
 	return nodes[min_idx]
+
+static func print_rtree(node: RTreeNode, indentation="	"):
+	if node._parent == null:
+		print("ROOT NODE")
+	if not node._children_nodes.is_empty():
+		for i in range(node._children_nodes.size()):
+			print("%s Child %d" % [indentation, i])
+			var new_indentation = indentation + "	"
+			print_rtree(node._children_nodes[i], new_indentation)
+	else:
+		print("%s Storing %d points" % [indentation, node._point_data.size()])
