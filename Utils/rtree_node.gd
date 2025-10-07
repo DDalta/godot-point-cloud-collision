@@ -68,8 +68,9 @@ func _quadratic_split():
 ## same thing as _quadratic_split but using area instead of points
 func _split_parent():
 	var new_node: RTreeNode = RTreeNode.new(self._max_items)
+	new_node._parent = self._parent
 	var temp_children: Array = self._children_nodes.duplicate()
-	self.clear()
+	self.clear_data()
 	
 	var worse_combination = _get_worse_node_combination(temp_children)
 	
@@ -104,16 +105,25 @@ func _split_parent():
 				new_node._aabb = new_node_enlarged
 	return new_node
 
-func clear():
-	self._children_nodes.clear()
-	self._point_data.clear()
-	self._aabb = AABB()
-
 func search(point: Vector2):
 	pass
 
 func get_aabb() -> AABB:
 	return self._aabb
+
+## Clear all data from tree
+func clear() -> void:
+	if not self._children_nodes.is_empty():
+		for node in self._children_nodes:
+			node.clear()
+		self.clear_data()
+	else:
+		self.clear_data()
+
+func clear_data():
+	self._children_nodes.clear()
+	self._point_data.clear()
+	self._aabb = AABB()
 
 func _update_data(point: Vector3, data: Variant) -> void:
 	self._point_data[point] = data
@@ -131,15 +141,23 @@ func _update_aabb() -> void:
 		new_aabb = new_aabb.merge(child._aabb)
 	self._aabb = new_aabb
 
+func copy() -> RTreeNode:
+	var new_node = RTreeNode.new(self._max_items)
+	if self._children_nodes: new_node._children_nodes = self._children_nodes.duplicate()
+	if self._point_data: new_node._point_data = self._point_data.duplicate()
+	if self._aabb: new_node._aabb = self._aabb
+	if self._parent: new_node._parent = self._parent
+	return new_node
+
 static func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 	# if we are at root and there is a newnode, update the root
 	if node._parent == null:
 		if new_node != null:
 			# make a new node and copy everything from node
 			# assign node_copy and new_node to node's children and make their parent the node
-			var node_copy: RTreeNode = node.duplicate()
+			var node_copy: RTreeNode = node.copy()
 			node_copy._max_items = node._max_items
-			node.clear()
+			node.clear_data()
 			node._children_nodes.append_array([node_copy, new_node])
 			node._aabb = node_copy._aabb.merge(new_node._aabb)
 			node_copy._parent = node
@@ -154,11 +172,11 @@ static func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 	# if number of childnodes have exceeded max_items
 	if parent._children_nodes.size() > parent._max_items:
 		# split the parent
-		var new_parent = parent._split_node()
+		var new_parent = parent._split_parent()
 		_adjust_tree(parent, new_parent)
 	else:
 		_adjust_tree(parent, null)
-	
+
 static func _get_worse_combination(points: Array):
 	var worse_combination = [Vector3.ZERO, Vector3.ZERO]
 	var worse_distance: float = -1
@@ -206,3 +224,5 @@ static func print_rtree(node: RTreeNode, indentation="	"):
 			print_rtree(node._children_nodes[i], new_indentation)
 	else:
 		print("%s Storing %d points" % [indentation, node._point_data.size()])
+		for point in node._point_data:
+			print("%s%v" % [indentation, point])
