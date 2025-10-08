@@ -74,7 +74,12 @@ func _split_parent():
 	var worse_combination = _get_worse_node_combination(temp_children)
 	
 	self._children_nodes.append(worse_combination[0])
+	worse_combination[0]._parent = self
+	self._aabb = self.get_aabb().merge(worse_combination[0].get_aabb())
+
 	new_node._children_nodes.append(worse_combination[1])
+	worse_combination[1]._parent = new_node
+	new_node._aabb = new_node.get_aabb().merge(worse_combination[1].get_aabb())
 	
 	temp_children.erase(worse_combination[0])
 	temp_children.erase(worse_combination[1])
@@ -90,17 +95,21 @@ func _split_parent():
 			# if both enlargements are equal, choose the group with the smallest volume
 			if node_enlarged.get_volume() < new_node_enlarged.get_volume():
 				self._children_nodes.append(child)
+				child._parent = self
 				self._aabb = node_enlarged
 			else:
 				new_node._children_nodes.append(child)
+				child._parent = new_node
 				new_node._aabb = new_node_enlarged
 		else:
 			# choose the group that will have the smallest enlargement
 			if node_enlargement_diff < new_node_enlargement_diff:
 				self._children_nodes.append(child)
+				child._parent = self
 				self._aabb = node_enlarged
 			else:
 				new_node._children_nodes.append(child)
+				child._parent = new_node
 				new_node._aabb = new_node_enlarged
 	return new_node
 
@@ -135,7 +144,7 @@ func _choose_leaf(point) -> RTreeNode:
 	return node._choose_leaf(point)
 
 func _update_aabb() -> void:
-	var new_aabb: AABB = self._aabb
+	var new_aabb: AABB = AABB()
 	for child: RTreeNode in self._children_nodes:
 		new_aabb = new_aabb.merge(child._aabb)
 	self._aabb = new_aabb
@@ -188,8 +197,8 @@ static func _get_worse_combination(points: Array):
 	return worse_combination
 
 static func _get_worse_node_combination(nodes: Array):
-	var worse_combination = [Vector3.ZERO, Vector3.ZERO]
-	var worse_wasted_volume: float = -1
+	var worse_combination = [].resize(2)
+	var worse_wasted_volume: float = -INF
 	for i in range(nodes.size()):
 		for j in range(i + 1, nodes.size()):
 			var aabb1 = nodes[i].get_aabb()

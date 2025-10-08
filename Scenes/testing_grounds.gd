@@ -38,22 +38,27 @@ func generate_points():
 	RTreeNode.print_rtree(rtree)
 
 func draw_rtree(node: RTreeNode):
+	
 	if node._parent == null:
-		DebugDraw3D.draw_aabb(node.get_aabb(), Color.RED)
-	if not node._children_nodes.is_empty():
-		DebugDraw3D.draw_aabb(node.get_aabb(), Color.BLUE)
-		for i in range(node._children_nodes.size()):
-			draw_rtree(node._children_nodes[i])
-	else:
-		DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.GREEN)
+		DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.RED)
+	elif node._children_nodes.is_empty():
+		if node.get_aabb():
+			DebugDraw3D.draw_aabb(node.get_aabb(), Color.GREEN)
+		else:
+			DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.GREEN)
 		for point in node._point_data:
 			DebugDraw3D.draw_text(point + Vector3(0, 0.2, 0), "%v" % point)
+	else:
+		DebugDraw3D.draw_aabb(node.get_aabb(), Color.BLUE)
+	
+	for child: RTreeNode in node._children_nodes:
+		draw_rtree(child)
  
 
 func draw_octotree(node: OctoTree, color: Color, expand: float = 1.0) -> void:
 	#DebugDraw3D.draw_box(node._bottom_left_front, Quaternion.IDENTITY, node._size * expand, color)
 	DebugDraw3D.draw_aabb(node._aabb, color)
 	for i in node._children_nodes:
-		if i in collision_nodes: draw_octotree(i, Color.GREEN, 1.01)
+		if i in collision_nodes: draw_octotree(i, Color.GREEN)
 		else: draw_octotree(i, Color.BLUE)
 	return
