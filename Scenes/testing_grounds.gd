@@ -2,43 +2,66 @@
 extends Node3D
 
 const WIREFRAME = preload("res://Shader/wireframe.tres")
-const POINT_CLOUD = preload("res://Scenes/point_cloud.tscn")
+const POINT_CLOUD = preload("res://Scenes/point_cloud_mesh.tscn")
 @onready var point_cloud_mesh: MeshInstance3D = $PointCloud2
-@onready var csg_box_3d: CSGBox3D = $CSGBox3D
+@onready var rigid_body_3d: RigidBody3D = $RigidBody3D
+@onready var csg_box_3d: CSGBox3D = $RigidBody3D/CSGBox3D
 
 @export var max_size: Vector3 = Vector3(10, 10, 10)
 @export var enable_draw_octotree: bool = false
 @export var point_count: int = 150
 @export_tool_button("Regenerate Points") var gen_points_action = generate_points
 
+var bounding_sphere_shape = SphereMesh.new()
 var rtree: RTreeNode
+var octree: OctTree
 var collision_nodes: Array
 
 func _ready() -> void:
-	rtree = RTreeNode.new(3)
+	octree = OctTree.new(Vector3(0, 0, 0), Vector3(10, 10, 10), 5)
 	generate_points()
 
 func _process(delta: float) -> void:
 	var a = DebugDraw3D.new_scoped_config().set_thickness(0.02)
-	draw_rtree(rtree)
+	collision_nodes = octree.check_intersection_aabb(AABB(csg_box_3d.global_position - (csg_box_3d.size / 2), csg_box_3d.size))
+	draw_octotree(octree, Color.BLUE)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action("ui_accept"):
+		rigid_body_3d.global_position = Vector3(5, 12, 5)
+		rigid_body_3d.linear_velocity = Vector3.ZERO
 
 func generate_points():
-	rtree.clear()
+	octree.clear()
 	var mesh := ArrayMesh.new()
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_POINTS)
 	
 	for i in range(point_count):
 		var point = Vector3(randf_range(0, 10), randf_range(0, 10), randf_range(0, 10))
-		rtree.insert(point, "")
+		octree.insert(point, "")
 		st.set_color(Color.RED)
 		st.add_vertex(point)
 	st.commit(mesh)
 	point_cloud_mesh.mesh = mesh
-	RTreeNode.print_rtree(rtree)
+	#RTreeNode.print_rtree(rtree)
+
+func collide_point_cloud(a: OctTree, b: AABB):
+	var intersecting_nodes = a.check_intersection_aabb(b)
+	if intersecting_nodes:
+		for node: OctTree in intersecting_nodes:
+			for point in node._point_data:
+				var bounding_sphere = PhysicsServer3D.body_create()
+				var shape_rid = PhysicsServer3D.sphere_shape_create()
+				var sphere_data = {"radius": 0.5}
+				var trans = Transform3D(Basis.IDENTITY, point)
+				PhysicsServer3D.body_set_space(bounding_sphere, get_world_3d().space)
+				PhysicsServer3D.shape_set_data(shape_rid, sphere_data)
+				PhysicsServer3D.body_add_shape(bounding_sphere, shape_rid)
+				PhysicsServer3D.body_set_mode(bounding_sphere, PhysicsServer3D.BODY_MODE_STATIC)
+				PhysicsServer3D.body_set_state(bounding_sphere, PhysicsServer3D.BODY_STATE_TRANSFORM, trans)
 
 func draw_rtree(node: RTreeNode):
-	
 	if node._parent == null:
 		DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.RED)
 	elif node._children_nodes.is_empty():
@@ -53,9 +76,8 @@ func draw_rtree(node: RTreeNode):
 	
 	for child: RTreeNode in node._children_nodes:
 		draw_rtree(child)
- 
 
-func draw_octotree(node: OctoTree, color: Color, expand: float = 1.0) -> void:
+func draw_octotree(node: OctTree, color: Color, expand: float = 1.0) -> void:
 	#DebugDraw3D.draw_box(node._bottom_left_front, Quaternion.IDENTITY, node._size * expand, color)
 	DebugDraw3D.draw_aabb(node._aabb, color)
 	for i in node._children_nodes:

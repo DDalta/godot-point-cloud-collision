@@ -1,4 +1,4 @@
-class_name OctoTree extends Resource
+class_name OctTree extends Resource
 
 var _bottom_left_front: Vector3
 var _top_right_back: Vector3
@@ -65,7 +65,7 @@ func insert(point: Vector3, data) -> bool:
 				else:
 					new_top_right_back.z -= self._size.z * 0.5
 				
-				self._children_nodes.append(OctoTree.new(new_bottom_left_front, new_top_right_back, self._max_items))
+				self._children_nodes.append(OctTree.new(new_bottom_left_front, new_top_right_back, self._max_items))
 				
 			# divide the data into the generated child nodes
 			for key in self._point_data.keys():
@@ -96,18 +96,21 @@ func clear() -> void:
 	else:
 		self._point_data.clear()
 
-## Get all octnodes that collide with a given aabb
-func check_aabb(aabb: AABB):
+## Get all leaf octnodes that collide with an aabb
+func check_intersection_aabb(aabb: AABB):
 	if self._aabb.intersects(aabb):
 		if self._children_nodes.is_empty():
 			return [self]
 		else:
-			var nodes = [self]
+			var nodes = []
 			for child in self._children_nodes:
-				var col = child.check_aabb(aabb)
+				var col = child.check_intersection_aabb(aabb)
 				if col: nodes.append_array(col)
 			return nodes
 	return []
+
+func check_intersection_sphere():
+	pass
 
 ## Compute the index of this OctreeNode's _octant_nodes Array that would store the given position.
 ## the computed index aligns with the _octant_nodes Array order.

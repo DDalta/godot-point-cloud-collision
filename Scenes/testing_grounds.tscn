@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://8cfm6sbxogox" path="res://Assets/Textures/sky_t.png" id="2_dcuqf"]
 [ext_resource type="PackedScene" uid="uid://bd5fturpc5igl" path="res://Scenes/Camera/free_camera.tscn" id="3_abtgi"]
 [ext_resource type="Shader" uid="uid://ci6cb3amgp56" path="res://Shader/wireframe.gdshader" id="4_w34uy"]
-[ext_resource type="PackedScene" uid="uid://cosdsj4pbp1ku" path="res://Scenes/point_cloud.tscn" id="5_xwgi5"]
+[ext_resource type="PackedScene" uid="uid://cosdsj4pbp1ku" path="res://Scenes/point_cloud_mesh.tscn" id="5_xwgi5"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_abtgi"]
 panorama = ExtResource("2_dcuqf")
@@ -28,13 +28,13 @@ albedo_color = Color(0.321569, 1, 1, 1)
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_xwgi5"]
 _surfaces = [{
-"aabb": AABB(0.0199025, 0.103566, 0.202127, 9.8476, 9.86345, 9.74393),
+"aabb": AABB(0.351943, 0.194021, 0.180936, 9.58035, 9.67783, 9.66164),
 "attribute_data": PackedByteArray("/wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP8="),
 "format": 34359738377,
 "primitive": 0,
 "uv_scale": Vector4(0, 0, 0, 0),
 "vertex_count": 50,
-"vertex_data": PackedByteArray("F2AdQSxsqUB62Q9BNw7eQCc7EkEe9IxA4VpLQN6pEkHOeNg/1a/JQHwa1D0oH4Y/ZbiOP+Nzmj9xPV9A1rnIQOHYmj4apANBfgwCQB1X/kCJ8RFBnVsJQYdHpz92HThAeUBbP31lCkFFzq5A8s0FQYan3EANM5I/Yx8oQOZ4H0GiTw9Bu03QP7uJ6T8/4phAWV+0P40imUCtld1AhgP5QDmr7UCA+k4+QgnEPydGRUCqGIJAkyUXQUzVqj/6cag/iYjDQDCIpECsew1BfJy5QF4DHEFOBRFBheG7P5I4lUBKvhBBCw2+QJt2JT9gEINAtpxnQMk5E0HXyMRAxNWeQPKKs0C+WD5ANQOOQGLHNj9K5xNBWY/FPio71T/Ec0tAsZ2JQMEGHUH4KIlAZrMYQQW4FEFbZpZAu5HuPmbLOT7TLZ9AmmZpQN7UoECqOtxAA4MDQS19TECMUb1Ar1H4P68pyED2Lok/oQqjPPQ00T/g5RRB//hMQM79/kDb6wlAl8mHPwWBw0AoznBAdiFOP/bEFkHkZd4/Ko4AQXeNv0B2QfxAcuV5QO+R2UAr+/JAT+EdQdXEhEA/DBxAM2gmP2qJcEDP8wFBAuu1QEVkX0DuChRBA9L9Pr2jCUGSQctAJYDVP4OACj9THRRAgIQZQWnpsUDqoNg/e78FQA7VHkG13KRAqi6eQFj1qkC/WItAOj+iQCmWf0BaLZo/8UAIP2v0R0DUghtBL7IZQYpv6UC5VRZBR/4VQemP0D8hGcVALU2zQCEm6UADsBFBWVsHQQnzYUAQIx9B")
+"vertex_data": PackedByteArray("V1yPQFapSkBB7ZFAscJaQHFfqUAmT49ArpEYQZzki0CKwXVAlxikQKvKhz5Ljo9APjksP+wigEBigRJBSnQGQV0egkDE1QhBq+oeQb0ZsEC965lAQXKsQDlKz0AxRzk+fhliQOUO6EBDV70/BgK4Pxnd2UAxmnFAuvaoQPF1N0BI8S1ADVCGQK7jtT9QNxVAf1TBQDLy7kDk5xtBfRwbQJZLskAW8RlBR4aKQBfNVEBnfxZAjya7P9PVo0DgNBJBZYk8QJNv+z87A9JAQ9c9QBnQFkAp76Q/grbLQEAvukAoh+s/pHa5P1buBUFxTwQ/sUPeP6NhEUFbJRBBU3wQQDFQJUD8YKxAh5jaQFH8oECaZ6BATe/XQHEHEkF205VAftN/QFWtRj7FmA5B2QMWQMKTA0BJK9pA+DdiQHeK4EAqmBtB2znAQJALv0DKS7dAdtCQQPpGk0B4ynVAV/YvP7PG1j4uMXNAJCLxPnjoyD5pg4RA6DG0PtKDlED7PZJAOPCRQK8PyEAEuilAY8I6QCcw6kBk+TJAF5RDQKds5kBrvBpBjEnbP9k7SD/wKBBB+KgsQNHgEUG0ht9APKvtPg0jEEBOTKRA/NzsPoC1wD7y6PtAozEJQSPyeEAPTvJA0bZUQHm5jT5xi61AygtOQAOjSUC4NDlASIlpQAxMDz+y6RdACCJfQIctwUA8TLhAsRc/QKjj5EA2ex1BcFQWQQuov0BbmzZA/25uQDD4EUGbfuBAVke5PpvP5UC2DARBz/EHQRbzHUGdg61AeLlcQP05xj+o6Pw/")
 }]
 
 [node name="TestingGrounds" type="Node3D"]
@@ -56,5 +56,7 @@ material = SubResource("StandardMaterial3D_abtgi")
 mesh = SubResource("ArrayMesh_xwgi5")
 metadata/_edit_lock_ = true
 
-[node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.23029, 4.56428, 11.6445)
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+transform = Transform3D(0.999887, -0.0150616, 0, 0.0150616, 0.999887, 0, 0, 0, 1, 5.10017, 12.7907, 5.01937)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="RigidBody3D"]
