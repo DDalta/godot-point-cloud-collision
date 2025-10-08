@@ -68,7 +68,6 @@ func _quadratic_split():
 ## same thing as _quadratic_split but using area instead of points
 func _split_parent():
 	var new_node: RTreeNode = RTreeNode.new(self._max_items)
-	new_node._parent = self._parent
 	var temp_children: Array = self._children_nodes.duplicate()
 	self.clear_data()
 	
@@ -165,8 +164,8 @@ static func _adjust_tree(node: RTreeNode, new_node: RTreeNode):
 		return
 	var parent: RTreeNode = node._parent
 	if new_node:
-		parent._children_nodes.append(new_node)
 		new_node._parent = parent
+		parent._children_nodes.append(new_node)
 	parent._update_aabb()
 	
 	# if number of childnodes have exceeded max_items
