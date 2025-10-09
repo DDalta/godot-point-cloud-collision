@@ -6,7 +6,8 @@ const POINT_CLOUD = preload("res://Scenes/point_cloud_mesh.tscn")
 @onready var point_cloud_mesh: MeshInstance3D = $PointCloud2
 @onready var rigid_body_3d: RigidBody3D = $RigidBody3D
 @onready var csg_box_3d: CSGBox3D = $RigidBody3D/CSGBox3D
-@onready var csg_sphere_3d: CSGSphere3D = $CSGSphere3D
+@onready var sphere_shape: CSGSphere3D = $RigidBody3D2/CSGSphere3D
+@onready var sphere_rigid: RigidBody3D = $RigidBody3D2
 
 @export var max_size: Vector3 = Vector3(10, 10, 10)
 @export var enable_draw_octotree: bool = false
@@ -23,7 +24,7 @@ func _ready() -> void:
 	generate_points()
 
 func _physics_process(delta: float) -> void:
-	collide_point_cloud(octree, AABB(csg_box_3d.global_position - (csg_box_3d.size / 2), csg_box_3d.size))
+	collide_point_cloud(octree, sphere_rigid.global_position, sphere_shape.radius)
 
 func _process(delta: float) -> void:
 	var a = DebugDraw3D.new_scoped_config().set_thickness(0.02)
@@ -32,9 +33,9 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action("ui_accept"):
-		rigid_body_3d.global_position = Vector3(5, 12, 5)
-		rigid_body_3d.linear_velocity = Vector3.ZERO
-		rigid_body_3d.angular_velocity = Vector3.ZERO
+		sphere_rigid.global_position = Vector3(5, 12, 5)
+		sphere_rigid.linear_velocity = Vector3.ZERO
+		sphere_rigid.angular_velocity = Vector3.ZERO
 
 func generate_points():
 	octree.clear()
@@ -51,8 +52,8 @@ func generate_points():
 	point_cloud_mesh.mesh = mesh
 	#RTreeNode.print_rtree(rtree)
 
-func collide_point_cloud(a: OctTree, b: AABB):
-	var intersecting_nodes = a.check_intersection_aabb(b)
+func collide_point_cloud(a: OctTree, s_center: Vector3, s_radius: float):
+	var intersecting_nodes = a.check_intersection_sphere(s_center, s_radius)
 	if intersecting_nodes: # if a and b are intersecting
 
 		# first clean out previous intersecting nodes that are no longer being intersected
