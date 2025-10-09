@@ -23,7 +23,7 @@ func _ready() -> void:
 	print(pointcloud.aabb.size)
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):
+	if event.is_action_pressed("btn1"):
 		sphere_rigid.global_position = Vector3(-0.038, -0.184, -2.494)
 		sphere_rigid.linear_velocity = Vector3.ZERO
 		sphere_rigid.angular_velocity = Vector3.ZERO

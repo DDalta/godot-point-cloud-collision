@@ -12,8 +12,9 @@ var ascii := false
 
 func _init(path=""):
 	if !path.is_empty(): _parse(path)
-	octree = OctTree.new(Vector3(-2.197177, -1.573868, -10.21991), Vector3(1.795723, 2.067532, -0.05456), 100)
-
+	#octree = OctTree.new(Vector3(-24.66232, -12.9884, -2.060022), Vector3(-24.66232+46.7106, -12.9884+27.13557,  -2.060022+20.65022), 100)
+	octree = OctTree.new(Vector3(-12,-12,-12), Vector3(12,12,12))
+	
 func _parse(path):
 	var file = FileAccess.open(path, FileAccess.READ)
 	var line = file.get_line().split(" ")
@@ -80,11 +81,10 @@ static func generate_mesh(pointcloud: PlyFile):
 		var color := Color(pointcloud.vertices[index+pointcloud._get_vertex_property_index("red")]/255,
 						pointcloud.vertices[index+pointcloud._get_vertex_property_index("green")]/255,
 						pointcloud.vertices[index+pointcloud._get_vertex_property_index("blue")]/255)
-		
 		st.set_color(color)
 		st.set_normal(normal)
 		st.add_vertex(pos)
-		
+
 		pointcloud.octree.insert(pos, {"color": color, "normal": normal})
 		pointcloud._update_aabb(pos)
 		
