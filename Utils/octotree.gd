@@ -109,8 +109,17 @@ func check_intersection_aabb(aabb: AABB):
 			return nodes
 	return []
 
-func check_intersection_sphere():
-	pass
+func check_intersection_sphere(s_center, s_radius):
+	if SphereCollision.check_sphere_aabb_intersection(s_center, s_radius, self._aabb):
+		if self._children_nodes.is_empty():
+			return [self]
+		else:
+			var nodes = []
+			for child in self._children_nodes:
+				var col = child.check_intersection_sphere(s_center, s_radius)
+				if col: nodes.append_array(col)
+			return nodes
+	return []
 
 ## Compute the index of this OctreeNode's _octant_nodes Array that would store the given position.
 ## the computed index aligns with the _octant_nodes Array order.
