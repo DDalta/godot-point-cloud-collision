@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cho88xrf6pn3t"]
+[gd_scene load_steps=8 format=3 uid="uid://cho88xrf6pn3t"]
 
 [ext_resource type="Script" uid="uid://boggm46we3pp1" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://bd5fturpc5igl" path="res://Scenes/Camera/free_camera.tscn" id="2_0xm2m"]
@@ -15,6 +15,9 @@ background_mode = 2
 sky = SubResource("Sky_h2yge")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_h2yge"]
+radius = 0.1
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ig7tw")
@@ -44,3 +47,13 @@ spot_angle = 19.5469
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_7mycd")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0378962, -0.18403, -2.49359)
+linear_velocity = Vector3(0, 0, -0.1)
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="RigidBody3D"]
+radius = 0.1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+shape = SubResource("SphereShape3D_h2yge")

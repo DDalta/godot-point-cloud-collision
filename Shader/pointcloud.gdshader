@@ -11,7 +11,7 @@ void vertex() {
 	// Ignore div by zero case, extremely rare anyway.
 	// Since VERTEX is local coord, translate it into world space using MODEL_MATRIX.
 	//POINT_SIZE = point_size / distance((MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz, CAMERA_POSITION_WORLD);
-	POINT_SIZE = 45.5 / distance((MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz, CAMERA_POSITION_WORLD);;
+	POINT_SIZE = 2.5 / distance((MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz, CAMERA_POSITION_WORLD);;
 }
 
 void fragment() {

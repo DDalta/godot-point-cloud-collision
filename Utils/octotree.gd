@@ -137,3 +137,9 @@ static func _get_octant_index(point: Vector3, center: Vector3) -> int:
 		oct |= 1
 
 	return oct
+
+static func draw_octree(octree_node: OctTree, color: Color):
+	DebugDraw3D.draw_aabb(octree_node._aabb, color)
+	for i in octree_node._children_nodes:
+		draw_octree(i, Color.BLUE)
+	return
