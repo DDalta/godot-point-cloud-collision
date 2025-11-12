@@ -94,9 +94,3 @@ static func generate_mesh(pointcloud: PlyFile):
 
 static func print_properties(pointcloud: PlyFile):
 	print(pointcloud.properties)
-
-
-		#for j in range(len(pointcloud.properties["vertex"])):
-			#var prop = pointcloud.vertices[index + j]
-		#st.set_color()
-		#st.add_vertex()

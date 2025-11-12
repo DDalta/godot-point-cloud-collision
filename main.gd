@@ -38,7 +38,6 @@ func _physics_process(delta: float) -> void:
 func collide_point_cloud(a: OctTree, s_center: Vector3, s_radius: float):
 	var intersecting_nodes = a.check_intersection_sphere(s_center, s_radius)
 	if intersecting_nodes: # if a and b are intersecting
-
 		# first clean out previous intersecting nodes that are no longer being intersected
 		var previous_nodes = boundary_spheres.keys()
 		for node in previous_nodes:
@@ -46,7 +45,6 @@ func collide_point_cloud(a: OctTree, s_center: Vector3, s_radius: float):
 				for bs in boundary_spheres[node]:
 					PhysicsServer3D.free_rid(bs)
 				boundary_spheres.erase(node)
-		
 		# create collision spheres for each point in each node
 		for node: OctTree in intersecting_nodes:
 			if boundary_spheres.has(node): continue
