@@ -20,8 +20,8 @@ func _ready() -> void:
 	mimic_ply_extraction()
 
 func _physics_process(delta: float) -> void:
-	#_update_point_cloud_collisions(octree)
-	pass
+	_update_point_cloud_collisions()
+	_debug_colliding_points()
 
 func _process(delta: float) -> void:
 	var a = DebugDraw3D.new_scoped_config().set_thickness(0.02)
@@ -37,8 +37,8 @@ func _input(event: InputEvent) -> void:
 
 func mimic_ply_extraction():
 	ply_file = generate_point_data()
-	build_mesh(ply_file)
-	build_octree(ply_file)
+	build_mesh()
+	build_octree()
 
 func generate_point_data():
 	num_points = 0
@@ -61,33 +61,36 @@ func generate_point_data():
 		point.x = 0
 	return point_data
 
-func build_octree(point_data):
+func build_octree():
 	octree.clear()
 	for i in range(num_points):
 		var point_index = i * 6
-		var point = Vector3(point_data[point_index], point_data[point_index+1], point_data[point_index+2])
-		octree.insert(point, point_index, point_data)
+		var point = Vector3(ply_file[point_index], ply_file[point_index+1], ply_file[point_index+2])
+		octree.insert(point, point_index, ply_file)
 
-func build_mesh(point_data):
+func build_mesh():
 	var mesh := ArrayMesh.new()
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_POINTS)
 	
 	for i in range(num_points):
 		var point_index = i * 6
-		var point = Vector3(point_data[point_index], point_data[point_index+1], point_data[point_index+2])
-		var color = Color(point_data[point_index+3], point_data[point_index+4], point_data[point_index+5])
+		var point = Vector3(ply_file[point_index], ply_file[point_index+1], ply_file[point_index+2])
+		var color = Color(ply_file[point_index+3], ply_file[point_index+4], ply_file[point_index+5])
+		for node: OctTree in boundary_spheres.keys():
+			if node.intersects_point(point):
+				color = Color.GREEN
 		
 		st.set_color(color)
 		st.add_vertex(point)
 	st.commit(mesh)
 	point_cloud_mesh.mesh = mesh
 
-func _update_point_cloud_collisions(tree: OctTree):
+func _update_point_cloud_collisions():
 	var previous_nodes = boundary_spheres.keys()
 	var new_nodes = {} # set data structure using a dictionary
 	for sphere in spheres.get_children():
-		var intersecting_leaf_nodes = tree.check_intersection_sphere(sphere.global_position, sphere.radius)
+		var intersecting_leaf_nodes = octree.check_intersection_sphere(sphere.global_position, sphere.radius)
 		for node in intersecting_leaf_nodes:
 			new_nodes[node] = true
 	
@@ -102,57 +105,19 @@ func _update_point_cloud_collisions(tree: OctTree):
 	for node: OctTree in new_nodes:
 		if boundary_spheres.has(node): continue
 		boundary_spheres[node] = []
-		for point in node._point_data:
-				var bounding_sphere = PhysicsServer3D.body_create()
-				var shape_rid = PhysicsServer3D.sphere_shape_create()
-				var trans = Transform3D(Basis.IDENTITY, point)
-				PhysicsServer3D.body_set_space(bounding_sphere, get_world_3d().space)
-				PhysicsServer3D.shape_set_data(shape_rid, 0.05)
-				PhysicsServer3D.body_add_shape(bounding_sphere, shape_rid)
-				PhysicsServer3D.body_set_mode(bounding_sphere, PhysicsServer3D.BODY_MODE_STATIC)
-				PhysicsServer3D.body_set_state(bounding_sphere, PhysicsServer3D.BODY_STATE_TRANSFORM, trans)
-				boundary_spheres[node].append(bounding_sphere)
-				
-# obsolete function
-func collide_point_cloud(a: OctTree, s_center: Vector3, s_radius: float):
-	var intersecting_nodes = a.check_intersection_sphere(s_center, s_radius)
-	if intersecting_nodes: # if a and b are intersecting
+		for idx in node._point_data:
+			var point_position = Vector3(ply_file[idx], ply_file[idx+1], ply_file[idx+2])
+			var bounding_sphere = PhysicsServer3D.body_create()
+			var shape_rid = PhysicsServer3D.sphere_shape_create()
+			var trans = Transform3D(Basis.IDENTITY, point_position)
+			PhysicsServer3D.body_set_space(bounding_sphere, get_world_3d().space)
+			PhysicsServer3D.shape_set_data(shape_rid, 0.05)
+			PhysicsServer3D.body_add_shape(bounding_sphere, shape_rid)
+			PhysicsServer3D.body_set_mode(bounding_sphere, PhysicsServer3D.BODY_MODE_STATIC)
+			PhysicsServer3D.body_set_state(bounding_sphere, PhysicsServer3D.BODY_STATE_TRANSFORM, trans)
+			boundary_spheres[node].append(bounding_sphere)
 
-		# first clean out previous intersecting nodes that are no longer being intersected
-		var previous_nodes = boundary_spheres.keys()
-		for node in previous_nodes:
-			if not intersecting_nodes.find(node) >= 0:
-				for bs in boundary_spheres[node]:
-					PhysicsServer3D.free_rid(bs)
-				boundary_spheres.erase(node)
-		
-		# create collision spheres for each point in each node
-		for node: OctTree in intersecting_nodes:
-			if boundary_spheres.has(node): continue
-			boundary_spheres[node] = []
-			for point in node._point_data:
-				var bounding_sphere = PhysicsServer3D.body_create()
-				var shape_rid = PhysicsServer3D.sphere_shape_create()
-				var trans = Transform3D(Basis.IDENTITY, point)
-				PhysicsServer3D.body_set_space(bounding_sphere, get_world_3d().space)
-				PhysicsServer3D.shape_set_data(shape_rid, 0.05)
-				PhysicsServer3D.body_add_shape(bounding_sphere, shape_rid)
-				PhysicsServer3D.body_set_mode(bounding_sphere, PhysicsServer3D.BODY_MODE_STATIC)
-				PhysicsServer3D.body_set_state(bounding_sphere, PhysicsServer3D.BODY_STATE_TRANSFORM, trans)
-				boundary_spheres[node].append(bounding_sphere)
-
-func draw_rtree(node: RTreeNode):
-	if node._parent == null:
-		DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.RED)
-	elif node._children_nodes.is_empty():
-		if node.get_aabb():
-			DebugDraw3D.draw_aabb(node.get_aabb(), Color.GREEN)
-		else:
-			DebugDraw3D.draw_aabb(node.get_aabb().grow(0.01), Color.GREEN)
-		for point in node._point_data:
-			DebugDraw3D.draw_text(point + Vector3(0, 0.2, 0), "%v" % point)
-	else:
-		DebugDraw3D.draw_aabb(node.get_aabb(), Color.BLUE)
-	
-	for child: RTreeNode in node._children_nodes:
-		draw_rtree(child)
+func _debug_colliding_points():
+	for node: OctTree in boundary_spheres.keys():
+		if not node._point_data.is_empty():
+			DebugDraw3D.draw_aabb(node._aabb, Color.GREEN)

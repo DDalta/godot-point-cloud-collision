@@ -6,14 +6,11 @@ var num_face: int
 var vertices: PackedFloat32Array
 var properties: Dictionary
 var aabb: AABB
-var octree: OctTree
 
 var ascii := false
 
 func _init(path=""):
 	if !path.is_empty(): _parse(path)
-	#octree = OctTree.new(Vector3(-24.66232, -12.9884, -2.060022), Vector3(-24.66232+46.7106, -12.9884+27.13557,  -2.060022+20.65022), 100)
-	octree = OctTree.new(Vector3(-12,-12,-12), Vector3(12,12,12))
 	
 func _parse(path):
 	var file = FileAccess.open(path, FileAccess.READ)
@@ -61,38 +58,20 @@ func _update_aabb(point):
 		return
 	self.aabb = self.aabb.expand(point)
 
-# generate octree instead of the mesh 
+func find_position(index: int) -> Vector3:
+	return Vector3(self.vertices[index + self._get_vertex_property_index("x")],
+			self.vertices[index + self._get_vertex_property_index("y")],
+			self.vertices[index + self._get_vertex_property_index("z")])
 
-static func generate_mesh(pointcloud: PlyFile):
-	var mesh := ArrayMesh.new()
-	var st := SurfaceTool.new()
+func find_color(index: int) -> Color:
+	return Color(self.vertices[index + self._get_vertex_property_index("red")]/255,
+			self.vertices[index + self._get_vertex_property_index("green")]/255,
+			self.vertices[index + self._get_vertex_property_index("blue")]/255)
 	
-	st.begin(Mesh.PRIMITIVE_POINTS)
-	
-	for i in range(pointcloud.num_vertex):
-		var index = i * len(pointcloud.properties["vertex"])
-		
-		var pos := Vector3(pointcloud.vertices[index+pointcloud._get_vertex_property_index("x")],
-						pointcloud.vertices[index+pointcloud._get_vertex_property_index("y")],
-						pointcloud.vertices[index+pointcloud._get_vertex_property_index("z")])
-		
-		var normal := Vector3(pointcloud.vertices[index+pointcloud._get_vertex_property_index("nx")],
-			pointcloud.vertices[index+pointcloud._get_vertex_property_index("ny")],
-			pointcloud.vertices[index+pointcloud._get_vertex_property_index("nz")])
-		
-		var color := Color(pointcloud.vertices[index+pointcloud._get_vertex_property_index("red")]/255,
-						pointcloud.vertices[index+pointcloud._get_vertex_property_index("green")]/255,
-						pointcloud.vertices[index+pointcloud._get_vertex_property_index("blue")]/255)
-		st.set_color(color)
-		st.set_normal(normal)
-		st.add_vertex(pos)
-
-		pointcloud.octree.insert(pos, {"color": color, "normal": normal})
-		pointcloud._update_aabb(pos)
-		
-		#print("%f %f %f" % [pointcloud.vertices[index], pointcloud.vertices[index+1], pointcloud.vertices[index+2]])
-	st.commit(mesh)
-	return mesh
+func find_normal(index: int) -> Vector3:
+	return Vector3(self.vertices[index + self._get_vertex_property_index("nx")],
+			self.vertices[index + self._get_vertex_property_index("ny")],
+			self.vertices[index + self._get_vertex_property_index("nz")])
 
 static func print_properties(pointcloud: PlyFile):
 	print(pointcloud.properties)

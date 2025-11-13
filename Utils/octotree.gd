@@ -18,7 +18,7 @@ func _init(bottom_left_front: Vector3, top_right_back: Vector3, max_items: int =
 	self._aabb = AABB(self._bottom_left_front, self._size)
 
 ## Insert point into the tree
-func insert(point_position: Vector3, point_index: int, data_array: Array, data = true) -> bool:
+func insert(point_position: Vector3, point_index: int, point_cloud: PlyFile, data = true) -> bool:
 	# check if valid position inside node
 	if not self._aabb.has_point(point_position):
 		print("%v does not fit inside %v by %v" % [point_position, self._aabb.position, self._aabb.position+self._aabb.size])
@@ -32,7 +32,7 @@ func insert(point_position: Vector3, point_index: int, data_array: Array, data =
 		if not node:
 			return false
 		
-		return node.insert(point_position, point_index, data_array, data)
+		return node.insert(point_position, point_index, point_cloud, data)
 	else:
 		# in leaf node
 		
@@ -69,7 +69,7 @@ func insert(point_position: Vector3, point_index: int, data_array: Array, data =
 				
 			# divide the data into the generated child nodes
 			for key in self._point_data.keys():
-				var pos = Vector3(data_array[key], data_array[key+1], data_array[key+2])
+				var pos = point_cloud.find_position(key)
 				var node = self._children_nodes[_get_octant_index(pos, self._center)]
 				node._point_data[key] = self._point_data[key]
 			
@@ -97,6 +97,9 @@ func clear() -> void:
 	else:
 		self._point_data.clear()
 
+func intersects_point(point_position) -> bool:
+	return self._aabb.has_point(point_position)
+
 ## Get all leaf octnodes that collide with an aabb
 func check_intersection_aabb(aabb: AABB):
 	if self._aabb.intersects(aabb):
@@ -112,7 +115,7 @@ func check_intersection_aabb(aabb: AABB):
 
 func check_intersection_sphere(s_center, s_radius):
 	if SphereCollision.check_sphere_aabb_intersection(s_center, s_radius, self._aabb):
-		if self._children_nodes.is_empty():
+		if self._children_nodes.is_empty() and not self._point_data.is_empty():
 			return [self]
 		else:
 			var nodes = []
