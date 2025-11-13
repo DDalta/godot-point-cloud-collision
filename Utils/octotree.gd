@@ -18,29 +18,29 @@ func _init(bottom_left_front: Vector3, top_right_back: Vector3, max_items: int =
 	self._aabb = AABB(self._bottom_left_front, self._size)
 
 ## Insert point into the tree
-func insert(point: Vector3, data) -> bool:
+func insert(point_position: Vector3, point_index: int, data_array: Array, data = true) -> bool:
 	# check if valid position inside node
-	if not self._aabb.has_point(point):
-		print("%v does not fit inside %v by %v" % [point, self._aabb.position, self._aabb.position+self._aabb.size])
+	if not self._aabb.has_point(point_position):
+		print("%v does not fit inside %v by %v" % [point_position, self._aabb.position, self._aabb.position+self._aabb.size])
 		return false
 	
 	# check if current node  has any children
 	if not self._children_nodes.is_empty():
 		# get node point is inside
-		var node = self._children_nodes[_get_octant_index(point, self._center)]
+		var node = self._children_nodes[_get_octant_index(point_position, self._center)]
 		
 		if not node:
 			return false
 		
-		return node.insert(point, data)
+		return node.insert(point_position, point_index, data_array, data)
 	else:
 		# in leaf node
 		
 		# check if point already exists in node
-		if self._point_data.has(point):
+		if self._point_data.has(point_index):
 			return false
 		
-		self._point_data[point] = data
+		self._point_data[point_index] = data
 		
 		if self._point_data.size() > self._max_items:
 			# overflowing; segment all data into new octleaf nodes
@@ -69,7 +69,8 @@ func insert(point: Vector3, data) -> bool:
 				
 			# divide the data into the generated child nodes
 			for key in self._point_data.keys():
-				var node = self._children_nodes[_get_octant_index(key, self._center)]
+				var pos = Vector3(data_array[key], data_array[key+1], data_array[key+2])
+				var node = self._children_nodes[_get_octant_index(pos, self._center)]
 				node._point_data[key] = self._point_data[key]
 			
 			self._point_data.clear()

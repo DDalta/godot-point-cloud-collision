@@ -12,14 +12,16 @@ const POINT_CLOUD = preload("res://Scenes/point_cloud_mesh.tscn")
 
 var octree: OctTree
 var boundary_spheres: Dictionary
+var ply_file: Array
+var num_points: int = 0
 
 func _ready() -> void:
-	#octree = OctTree.new(Vector3(0, 0, 0), Vector3(20, 10, 20), 5)
-	#generate_points()
+	octree = OctTree.new(Vector3(0, 0, 0), Vector3(20, 10, 20), 5)
 	mimic_ply_extraction()
 
 func _physics_process(delta: float) -> void:
-	_update_point_cloud_collisions(octree)
+	#_update_point_cloud_collisions(octree)
+	pass
 
 func _process(delta: float) -> void:
 	var a = DebugDraw3D.new_scoped_config().set_thickness(0.02)
@@ -34,10 +36,12 @@ func _input(event: InputEvent) -> void:
 		instance.global_position = Vector3(randf_range(0, 20), 5, randf_range(0, 20))
 
 func mimic_ply_extraction():
-	var ply_file = generate_point_data()
-	print(ply_file)
+	ply_file = generate_point_data()
+	build_mesh(ply_file)
+	build_octree(ply_file)
 
 func generate_point_data():
+	num_points = 0
 	var point_data = []
 	var point = Vector3.ZERO
 	for i in range(100):
@@ -45,42 +49,39 @@ func generate_point_data():
 			# x, y, z, r, b, g in array
 
 			point_data.append(point.x)
-			point_data.append(point.y)
 			point_data.append(randf_range(0, 0.2))
+			point_data.append(point.z)
 			point_data.append(1.0)
-			point_data.append(0)
-			point_data.append(0)
+			point_data.append(0.0)
+			point_data.append(0.0)
+			num_points += 1
 			
 			point.x += 0.2
 		point.z += 0.2
 		point.x = 0
 	return point_data
 
-func generate_points():
+func build_octree(point_data):
 	octree.clear()
+	for i in range(num_points):
+		var point_index = i * 6
+		var point = Vector3(point_data[point_index], point_data[point_index+1], point_data[point_index+2])
+		octree.insert(point, point_index, point_data)
+
+func build_mesh(point_data):
 	var mesh := ArrayMesh.new()
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_POINTS)
 	
-	var points = generate_plane()
-	
-	for i in points:
-		octree.insert(i, {"color": "RED"})
-		st.set_color(Color("RED"))
-		st.add_vertex(i)
+	for i in range(num_points):
+		var point_index = i * 6
+		var point = Vector3(point_data[point_index], point_data[point_index+1], point_data[point_index+2])
+		var color = Color(point_data[point_index+3], point_data[point_index+4], point_data[point_index+5])
+		
+		st.set_color(color)
+		st.add_vertex(point)
 	st.commit(mesh)
 	point_cloud_mesh.mesh = mesh
-
-func generate_plane():
-	var points = []
-	var point = Vector3.ZERO
-	for i in range(100):
-		for j in range(100):
-			points.append(point + Vector3(0, randf_range(0, 0.2), 0))
-			point.x += 0.2
-		point.z += 0.2
-		point.x = 0
-	return points
 
 func _update_point_cloud_collisions(tree: OctTree):
 	var previous_nodes = boundary_spheres.keys()
