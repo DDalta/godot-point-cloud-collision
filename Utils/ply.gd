@@ -61,6 +61,8 @@ func _update_aabb(point):
 		return
 	self.aabb = self.aabb.expand(point)
 
+# generate octree instead of the mesh 
+
 static func generate_mesh(pointcloud: PlyFile):
 	var mesh := ArrayMesh.new()
 	var st := SurfaceTool.new()

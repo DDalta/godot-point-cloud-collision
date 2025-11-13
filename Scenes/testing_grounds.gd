@@ -1,4 +1,3 @@
-@tool
 extends Node3D
 
 const RIGID_SPHERE = preload("res://Scenes/rigid_sphere.tscn")
@@ -9,16 +8,15 @@ const POINT_CLOUD = preload("res://Scenes/point_cloud_mesh.tscn")
 @export var max_size: Vector3 = Vector3(10, 10, 10)
 @export var enable_draw_octotree: bool = false
 @export var point_count: int = 150
-@export_tool_button("Regenerate Points") var gen_points_action = generate_points
+#@export_tool_button("Regenerate Points") var gen_points_action = generate_points
 
-var rtree: RTreeNode
 var octree: OctTree
-var collision_nodes: Array
 var boundary_spheres: Dictionary
 
 func _ready() -> void:
-	octree = OctTree.new(Vector3(0, 0, 0), Vector3(20, 10, 20), 5)
-	generate_points()
+	#octree = OctTree.new(Vector3(0, 0, 0), Vector3(20, 10, 20), 5)
+	#generate_points()
+	mimic_ply_extraction()
 
 func _physics_process(delta: float) -> void:
 	_update_point_cloud_collisions(octree)
@@ -34,6 +32,29 @@ func _input(event: InputEvent) -> void:
 		spheres.add_child(instance)
 		instance.radius = randf_range(0.1, 0.5)
 		instance.global_position = Vector3(randf_range(0, 20), 5, randf_range(0, 20))
+
+func mimic_ply_extraction():
+	var ply_file = generate_point_data()
+	print(ply_file)
+
+func generate_point_data():
+	var point_data = []
+	var point = Vector3.ZERO
+	for i in range(100):
+		for j in range(100):
+			# x, y, z, r, b, g in array
+
+			point_data.append(point.x)
+			point_data.append(point.y)
+			point_data.append(randf_range(0, 0.2))
+			point_data.append(1.0)
+			point_data.append(0)
+			point_data.append(0)
+			
+			point.x += 0.2
+		point.z += 0.2
+		point.x = 0
+	return point_data
 
 func generate_points():
 	octree.clear()
