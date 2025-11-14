@@ -3,10 +3,11 @@ extends Node3D
 @onready var spheres: Node3D = $Spheres
 @onready var free_camera: Camera3D = $FreeCamera
 
-@export var enable_draw_octotree: bool = false
+@export var draw_octotree_debug: bool = false
+@export var draw_collisions_debug: bool = false
 
 const RIGID_SPHERE = preload("res://Scenes/rigid_sphere.tscn")
-const POINT_CLOUD = preload("res://Scenes/point_cloud_mesh.tscn")
+const POINT_CLOUD_MESH = preload("res://Scenes/point_cloud_mesh.tscn")
 
 var filepath := "res://Assets/PointClouds/TokyoAlleyway.ply"
 var pointcloud: PlyFile
@@ -18,7 +19,7 @@ func _ready() -> void:
 	pointcloud = PlyFile.new(filepath)
 	
 	# build pointcloud mesh
-	var instance = POINT_CLOUD.instantiate()
+	var instance = POINT_CLOUD_MESH.instantiate()
 	instance.mesh = build_mesh()
 	add_child(instance)
 	print("Built mesh!")
@@ -30,17 +31,20 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("btn1"):
-		
 		var instance = RIGID_SPHERE.instantiate()
 		spheres.add_child(instance)
 		instance.radius = randf_range(0.1, 0.25)
 		instance.global_position = free_camera.global_position + (-free_camera.basis.z * 2)
+	
+	if event.is_action_pressed("space"):
+		for sphere in spheres.get_children():
+			sphere.linear_velocity = Vector3.UP * 5
 
 func _physics_process(delta: float) -> void:
 	var a = DebugDraw3D.new_scoped_config().set_thickness(0.01)
 	_update_point_cloud_collisions()
-	if enable_draw_octotree: OctTree.draw_octree(pointcloud.octree, Color.BLUE)
-	_debug_colliding_points()
+	if draw_octotree_debug: OctTree.draw_octree(octree, Color.BLUE)
+	if draw_collisions_debug: _debug_colliding_points()
 
 func _update_point_cloud_collisions():
 	var previous_nodes = boundary_spheres.keys()
@@ -54,6 +58,8 @@ func _update_point_cloud_collisions():
 	for node: OctTree in previous_nodes:
 		if not new_nodes.has(node) and boundary_spheres.has(node):
 			for bs in boundary_spheres[node]:
+				var shape = PhysicsServer3D.body_get_shape(bs, 0)
+				PhysicsServer3D.free_rid(shape)
 				PhysicsServer3D.free_rid(bs)
 			boundary_spheres.erase(node)
 	

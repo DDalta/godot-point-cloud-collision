@@ -18,6 +18,7 @@ glow_enabled = true
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_ig7tw")
+draw_collisions_debug = true
 
 [node name="FreeCamera" parent="." instance=ExtResource("2_0xm2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.571579, 0)
